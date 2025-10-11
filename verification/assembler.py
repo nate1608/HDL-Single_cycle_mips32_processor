@@ -36,7 +36,7 @@ def signed_imm_to_bin(imm_str, bits):
         print(f"ERROR: Invalid immediate value '{imm_str}'.")
         exit(1)
 
-def assemble(input_file='C:/Users/ASUS/visual code/Assembler/program.asm', output_file='C:/Users/ASUS/visual code/Assembler/program.hex'):
+def assemble(input_file='verification/program.asm', output_file='verification/program.hex'):
     """
     Reads an assembly file and writes the corresponding machine code to a hex file.
     
@@ -124,4 +124,5 @@ def assemble(input_file='C:/Users/ASUS/visual code/Assembler/program.asm', outpu
     print(f"Assembly complete. {lines_processed} instructions written to {output_file}.")
 
 if __name__ == '__main__':
+
     assemble()
