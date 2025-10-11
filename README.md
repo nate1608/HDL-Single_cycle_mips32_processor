@@ -49,4 +49,4 @@ To verify the functionality of the processor, follow these steps:
 
 ## Example Program: Factorial of 5
 
-The included `factorial.asm` program calculates the factorial of 5. It loads the number 5 from data memory, iteratively multiplies it down to 1, and stores the final result (120) back into data memory. This program tests `lw`, `sw`, `addi`, `mul`, `subi`, and `beqz` instructions, demonstrating the processor's full functionality.
+The included an default `program.asm` program calculates the factorial of 5. It loads the number 5 from data memory, iteratively multiplies it down to 1, and stores the final result (120) back into data memory. This program tests `lw`, `sw`, `addi`, `mul`, `subi`, and `beqz` instructions, demonstrating the processor's full functionality.
