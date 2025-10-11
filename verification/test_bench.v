@@ -41,7 +41,7 @@ module test_bench();
 //            DP.ins_set1.mem[6'd6] = 32'hfc000000;
 
             //Reads program from the hex file generates from python script (assembly to machine code)
-            $readmemh( "C:/Users/ASUS/visual code/Assembler/program.hex ",  DP.ins_set1.mem );
+            $readmemh( "verification/program.hex ",  DP.ins_set1.mem );
 
             //uncomment to check registers value (apply suffient delay first) 
             //for(k=0; k<3; k=k+1) begin #15
