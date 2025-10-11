@@ -1,6 +1,6 @@
 # Factorial of 5 program
-# R1 will hold the number n (initially 5)
-# R2 will hold the result (the factorial)
+# MEM[200] will hold the number n (initially 5)
+# MEM[198] will hold the result (the factorial)
 
 # Instruction at PC=0: LW R1, 200(R0) -> Load n=5 into R1
 lw R1, 200(R0)
@@ -19,9 +19,9 @@ subi R1, R1, 1
 # Offset is -3 instructions from PC+1.
 bneqz R1, -3
 
-# Instruction at PC=24: END: SW R2, 198(R0) -> Store final result
+# Instruction at PC=5: END: SW R2, 198(R0) -> Store final result
 sw R2, 198(R0)
 
-# Instruction at PC=28: HLT
-
+# Instruction at PC=6: HLT
 hlt
+
