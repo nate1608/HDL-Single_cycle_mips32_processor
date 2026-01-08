@@ -4,19 +4,19 @@ This repository contains the RTL design and verification of a 32-bit MIPS-based 
 
 ---
 
-## 🏗️ Project Architecture
+## Project Architecture
 
 This project is divided into two major microarchitectural implementations:
 
 ### 1. Single-Cycle Core (Completed & Verified)
 The baseline implementation where every instruction is executed in a single, long clock cycle.
-- **Status:** ✅ Verified
+- **Status:**  Verified
 - **Features:** Complete Datapath & Combinational Control Unit.
 - **Verification:** Validated via custom factorial assembly program.
 
 ### 2. 5-Stage Pipelined Core (Active Development)
 An advanced implementation designed to improve instruction throughput by splitting execution into 5 stages: **IF | ID | EX | MEM | WB**.
-- **Status:** 🚧 In Progress
+- **Status:**  In Progress
 - **Key Features:**
   - **Inter-Stage Registers:** Synchronized buffers (`IF/ID`, `ID/EX`, `EX/MEM`, `MEM/WB`) to isolate critical paths.
   - **Distributed Control:** Control signals are decoded in ID and propagated through pipeline registers.
