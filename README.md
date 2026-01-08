@@ -1,35 +1,51 @@
-# 32-Bit Single-Cycle MIPS Processor in Verilog
+# 32-Bit MIPS Processor: Single-Cycle & 5-Stage Pipeline
 
-This repository contains the RTL design and verification environment for a single-cycle MIPS-like processor. This project was developed to gain a fundamental understanding of computer architecture, including datapath design, control logic, and instruction set implementation. The processor is capable of executing a subset of MIPS instructions, including arithmetic, memory access, and branch operations.
-
-![MIPS Single-Cycle Datapath]
+This repository contains the RTL design and verification of a 32-bit MIPS-based processor. It serves as a comprehensive study of computer architecture, evolving from a functional **Single-Cycle** implementation to a high-performance **5-Stage Pipelined** microarchitecture.
 
 ---
 
-## Key Features
+## 🏗️ Project Architecture
 
-- **Single-Cycle Architecture:** Every instruction is executed in a single, long clock cycle.
-- **MIPS-like ISA:** Implements a subset of the MIPS instruction set, including R-Type, I-Type, and Branch instructions.
-- **Modular Design:** The processor is designed hierarchically with distinct datapath and controller modules for clarity and scalability.
-- **Structural Datapath:** The datapath is built from fundamental components like a register file, ALU, memories, and multiplexers.
-- **Combinational Controller:** A purely combinational control unit decodes instructions and generates all necessary control signals.
-- **Verification Environment:** Includes a Verilog testbench and a Python-based assembler to run custom programs.
+This project is divided into two major microarchitectural implementations:
+
+### 1. Single-Cycle Core (Completed & Verified)
+The baseline implementation where every instruction is executed in a single, long clock cycle.
+- **Status:** ✅ Verified
+- **Features:** Complete Datapath & Combinational Control Unit.
+- **Verification:** Validated via custom factorial assembly program.
+
+### 2. 5-Stage Pipelined Core (Active Development)
+An advanced implementation designed to improve instruction throughput by splitting execution into 5 stages: **IF | ID | EX | MEM | WB**.
+- **Status:** 🚧 In Progress
+- **Key Features:**
+  - **Inter-Stage Registers:** Synchronized buffers (`IF/ID`, `ID/EX`, `EX/MEM`, `MEM/WB`) to isolate critical paths.
+  - **Distributed Control:** Control signals are decoded in ID and propagated through pipeline registers.
+  - **Hazard Handling:** (See Roadmap below).
 
 ---
 
-## Implemented Instruction Set
+## 🛠️ Implementation Details
 
-| Instruction | Type | Opcode | Description |
+### Instruction Set Architecture (ISA)
+Both cores support a subset of the MIPS32 ISA, allowing for arithmetic, logic, memory, and control flow operations.
+
+| Instruction | Format | Opcode | Description |
 | :--- | :--- | :--- | :--- |
-| `add`, `sub`, `and`, `or`, `slt`, `mul` | R-Type | `000000` - `000101` | Performs the specified ALU operation on two registers and writes the result to a third. |
-| `addi`, `subi`, `slti` | I-Type | `001010` - `001100` | Performs an ALU operation on a register and a sign-extended immediate value. |
-| `lw` | I-Type | `001000` | Loads a word from data memory into a register. |
-| `sw` | I-Type | `001001` | Stores a word from a register into data memory. |
-| `beqz`, `bneqz` | I-Type | `001110`, `001101` | Branches to a new address if the specified register is equal/not equal to zero. |
-| `hlt` | J-Type | `111111` | Halts the simulation. |
+| `add`, `sub`, `and`, `or`, `slt`, `mul` | R-Type | `000000` - `000101` | Register-to-Register ALU operations. |
+| `addi`, `subi`, `slti` | I-Type | `001010` - `001100` | Immediate ALU operations. |
+| `lw` | I-Type | `001000` | Load Word from Memory. |
+| `sw` | I-Type | `001001` | Store Word to Memory. |
+| `beqz`, `bneqz` | Branch | `001110`, `001101` | Branch Equal/Not Equal Zero. |
+| `hlt` | J-Type | `111111` | Halt Simulation. |
+
+### Pipeline Hazard Management (Roadmap)
+The pipeline architecture is currently being upgraded to handle execution hazards.
+- [x] **Datapath Slicing:** Pipeline registers implemented and instruction flow verified.
+- [ ] **Data Hazards:** Forwarding Unit (Bypassing) to resolve RAW dependencies. *[Coming Soon]*
+- [ ] **Control Hazards:** Branch prediction/flushing logic. *[Coming Soon]*
+- [ ] **Load-Use Hazards:** Stalling logic implementation. *[Coming Soon]*
 
 ---
-
 ## How to Run the Simulation
 
 To verify the functionality of the processor, follow these steps:
@@ -50,3 +66,17 @@ To verify the functionality of the processor, follow these steps:
 ## Example Program: Factorial of 5
 
 The included an default `program.asm` program calculates the factorial of 5. It loads the number 5 from data memory, iteratively multiplies it down to 1, and stores the final result (120) back into data memory. This program tests `lw`, `sw`, `addi`, `mul`, `subi`, and `beqz` instructions, demonstrating the processor's full functionality.
+
+## 📂 Repository Structure
+
+```text
+/rtl
+  ├── /single_cycle    # The verified baseline core
+  ├── /pipeline        # The 5-stage pipelined core (Active Dev)
+  └── /common          # Shared modules (ALU, Register File)
+/verification
+  ├── assembler.py     # Python assembler for MIPS -> Hex
+  ├── program.asm      # Assembly source code
+  └── test_bench.v     # Verilog simulation environment-
+
+
