@@ -58,12 +58,18 @@ The processor successfully calculates `5! = 120` (`0x78`).
 ![Factorial Waveform](./docs/waveform_fact.png)
 *(Note: Registers accumulate values without stalling due to the Forwarding Unit)*
 
-### Test Case 2: Jump Register (Hazard Handling)
-A specific test designed to break the pipeline:
-1.  **Modify** register `$ra` (Return Address).
-2.  **Immediately** execute `jr $ra`.
-3.  **Result:** The Forwarding Unit correctly bypasses the new `$ra` value from the EX stage to the PC Logic, ensuring the return jumps to the correct address.
+### Test Case 2: Function Call with Data Forwarding (Stress Test)
+**Objective:** Verify "Jump Register" (`jr`) for function returns and ALU-to-ALU Forwarding.
+* **Scenario:** `main` calls `sum(a, b)`, which calculates `2 * (a + b)` and returns.
+    * **Inputs:** `a = 10` ($R1), `b = 20` ($R2).
+    * **Operation:** `R3 = R1 + R2` (30) followed immediately by `R3 = R3 + R3` (60).
+    * **Return:** The function uses `jr $ra` to return to the main loop.
+* **Verification:**
+    * **Forwarding:** The waveform confirms `sel_Aforward` and `sel_Bforward` signals go high during the dependent `add` instruction, bypassing the pipeline stall.
+    * **Control Flow:** The processor successfully jumps to the function address (`24`) and returns to the calculated address (`16`), flushing the invalid fetch slot after `jr`.
+    * **Final State:** Memory address `200` contains the correct result `60`.
 
+![Function Return Waveform](./docs/waveform_jr.png)
 ---
 
 ## 🚀 How to Run
