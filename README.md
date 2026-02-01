@@ -41,7 +41,7 @@ The processor implements a subset of the MIPS32 ISA, supporting Register-Registe
 | `lw` | I-Type | Base + Offset | **MEM Stage** | Load Word with stall logic. |
 | `sw` | I-Type | Base + Offset | **MEM Stage** | Store Word with forwarding. |
 | `beq`, `bne` | I-Type | PC-Relative | **EX Stage** | Conditional Branch (2-cycle flush penalty). |
-| `j` | J-Type | Pseudo-Direct | **ID Stage** | Unconditional Jump (1-cycle flush penalty). |
+| `jump` | J-Type | Pseudo-Direct | **ID Stage** | Unconditional Jump (1-cycle flush penalty). |
 | `jr` | R-Type | Register Indirect | **EX Stage** | Jump Register (Returns). Supports forwarding. |
 
 ---
@@ -82,6 +82,11 @@ A specific test designed to break the pipeline:
 
 ---
 
+## 🔮 Future Improvements
+- Implement Dynamic Branch Prediction (2-bit Saturating Counter).
+- Add Data Cache (Direct Mapped).
+- Extend ISA to support Shift instructions (sll, srl).
+
 ## 📂 Directory Structure
 
 ```text
@@ -96,4 +101,5 @@ A specific test designed to break the pipeline:
 /sim                       # Testbenches
 /tools                     # Python Assembler
 /tests                     # Assembly source files
-/docs                      # Diagrams & Waveforms
+/docs                      # Diagrams & Waveforms 
+
