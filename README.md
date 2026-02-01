@@ -1,82 +1,99 @@
-# 32-Bit MIPS Processor: Single-Cycle & 5-Stage Pipeline
+# 5-Stage Pipelined MIPS32 Processor
 
-This repository contains the RTL design and verification of a 32-bit MIPS-based processor. It serves as a comprehensive study of computer architecture, evolving from a functional **Single-Cycle** implementation to a high-performance **5-Stage Pipelined** microarchitecture.
+![Language](https://img.shields.io/badge/Language-Verilog-blue) ![Tools](https://img.shields.io/badge/Tools-Vivado%20%7C%20ModelSim-orange) ![Status](https://img.shields.io/badge/Status-Verified-green)
 
----
+A fully synthesized, cycle-accurate implementation of a **32-bit MIPS Processor**. This project demonstrates the evolution of computer architecture from a functional **Single-Cycle** baseline to a high-performance **5-Stage Pipelined** microarchitecture with advanced hazard resolution.
 
-## Project Architecture
-
-This project is divided into two major microarchitectural implementations:
-
-### 1. Single-Cycle Core (Completed & Verified)
-The baseline implementation where every instruction is executed in a single, long clock cycle.
-- **Status:**  Verified
-- **Features:** Complete Datapath & Combinational Control Unit.
-- **Verification:** Validated via custom factorial assembly program.
-
-### 2. 5-Stage Pipelined Core (Active Development)
-An advanced implementation designed to improve instruction throughput by splitting execution into 5 stages: **IF | ID | EX | MEM | WB**.
-- **Status:**  In Progress
-- **Key Features:**
-  - **Inter-Stage Registers:** Synchronized buffers (`IF/ID`, `ID/EX`, `EX/MEM`, `MEM/WB`) to isolate critical paths.
-  - **Distributed Control:** Control signals are decoded in ID and propagated through pipeline registers.
-  - **Hazard Handling:** (See Roadmap below).
+> **Key Achievement:** Implemented a conflict-free pipeline capable of executing dependent arithmetic instructions with **Zero Stalls** via data forwarding, and handling complex control flow (Recursion/Function Pointers) via a prioritized Master PC Unit.
 
 ---
 
-## 🛠️ Implementation Details
+## 🏛️ Architecture Overview
 
-### Instruction Set Architecture (ISA)
-Both cores support a subset of the MIPS32 ISA, allowing for arithmetic, logic, memory, and control flow operations.
+The repository houses two distinct microarchitectures, allowing for performance comparison and design iteration study.
 
-| Instruction | Format | Opcode | Description |
-| :--- | :--- | :--- | :--- |
-| `add`, `sub`, `and`, `or`, `slt`, `mul` | R-Type | `000000` - `000101` | Register-to-Register ALU operations. |
-| `addi`, `subi`, `slti` | I-Type | `001010` - `001100` | Immediate ALU operations. |
-| `lw` | I-Type | `001000` | Load Word from Memory. |
-| `sw` | I-Type | `001001` | Store Word to Memory. |
-| `beqz`, `bneqz` | Branch | `001110`, `001101` | Branch Equal/Not Equal Zero. |
-| `hlt` | J-Type | `111111` | Halt Simulation. |
+### 1. The Pipelined Core (Advanced)
+A modular, hierarchical design split into 5 stages (`IF`, `ID`, `EX`, `MEM`, `WB`) to maximize instruction throughput.
 
-### Pipeline Hazard Management (Roadmap)
-The pipeline architecture is currently being upgraded to handle execution hazards.
-- [x] **Datapath Slicing:** Pipeline registers implemented and instruction flow verified.
-- [ ] **Data Hazards:** Forwarding Unit (Bypassing) to resolve RAW dependencies. *[Coming Soon]*
-- [ ] **Control Hazards:** Branch prediction/flushing logic. *[Coming Soon]*
-- [ ] **Load-Use Hazards:** Stalling logic implementation. *[Coming Soon]*
+#### **Key Technical Features:**
+* **Hierarchical RTL Design:** Logic is encapsulated in stage-specific modules (e.g., `ID_Stage.v`, `Hazard_Unit.v`) ensuring clean synthesis and easy debugging.
+* **Robust Hazard Management:**
+    * **Data Hazards (RAW):** Resolved via a dedicated **Forwarding Unit** that bypasses data from MEM and WB stages directly to the ALU inputs in EX.
+    * **Load-Use Hazards:** Detected automatically to insert a single-cycle hardware stall (bubble) only when necessary.
+    * **Control Hazards:** Implements **Static Branch Prediction (Not-Taken)** with automatic pipeline flushing in the ID and EX stages upon misprediction.
+* **Advanced Control Flow:**
+    * **Master PC Arbitration:** A 4-way prioritized Mux in the Fetch stage arbitrates between Branch Targets, Register Jumps, Immediate Jumps, and Sequential PC.
+    * **Function Support:** Full support for `jal` (Call) and `jr` (Return) instructions, enabling C-style function calls and recursion.
+
+### 2. The Single-Cycle Core (Baseline)
+The initial functional prototype where every instruction completes in one long clock cycle. Used as the "Golden Model" for verifying the pipeline's correctness.
 
 ---
-## How to Run the Simulation
 
-To verify the functionality of the processor, follow these steps:
+## ⚙️ Instruction Set Architecture (ISA)
 
-1.  **Write a Program:** Write a MIPS assembly program using the supported instructions and save it as `program.asm`. An example factorial program is provided in the `verification/programs/` directory.
+The processor implements a subset of the MIPS32 ISA, supporting Register-Register, Immediate, Memory, and Control Flow operations.
 
-2.  **Assemble the Program:** Use the provided Python assembler to convert your assembly code into 32-bit hexadecimal machine code. This will generate a `program.hex` file.
+| Instruction | Type | Addressing Mode | Pipeline Resolution | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `add`, `sub`, `and`, `or`, `mul` | R-Type | Register Direct | **EX Stage** | Arithmetic/Logic operations. |
+| `addi`, `subi`, `slti` | I-Type | Immediate | **EX Stage** | Arithmetic with constants. |
+| `lw` | I-Type | Base + Offset | **MEM Stage** | Load Word with stall logic. |
+| `sw` | I-Type | Base + Offset | **MEM Stage** | Store Word with forwarding. |
+| `beq`, `bne` | I-Type | PC-Relative | **EX Stage** | Conditional Branch (2-cycle flush penalty). |
+| `j` | J-Type | Pseudo-Direct | **ID Stage** | Unconditional Jump (1-cycle flush penalty). |
+| `jr` | R-Type | Register Indirect | **EX Stage** | Jump Register (Returns). Supports forwarding. |
+
+---
+
+## 📊 Verification & Waveforms
+
+The design has been verified using Xilinx Vivado. The testbench loads a hex file generated by a custom Python assembler.
+
+### Test Case 1: Factorial Calculation (5!)
+The processor successfully calculates `5! = 120` (`0x78`).
+* **Mechanism:** Uses a loop with `mul` and `subi`.
+* **Verification:** Register `R2` accumulates the result: `1` -> `5` -> `20` -> `60` -> `120`.
+
+![Factorial Waveform](./docs/waveform_fact.png)
+*(Note: Registers accumulate values without stalling due to the Forwarding Unit)*
+
+### Test Case 2: Jump Register (Hazard Handling)
+A specific test designed to break the pipeline:
+1.  **Modify** register `$ra` (Return Address).
+2.  **Immediately** execute `jr $ra`.
+3.  **Result:** The Forwarding Unit correctly bypasses the new `$ra` value from the EX stage to the PC Logic, ensuring the return jumps to the correct address.
+
+---
+
+## 🚀 How to Run
+
+1.  **Assembler:**
+    Convert your MIPS assembly (`.asm`) into machine code (`.hex`) using the included tool:
     ```bash
-    python verification/assembler.py
+    python tools/assembler.py tests/factorial.asm
     ```
 
-3.  **Run the Simulation:** Launch your Verilog simulator (e.g., Xilinx Vivado, ModelSim) and run the `testbench.v` file. The testbench is configured to automatically load `program.hex` into the instruction memory at the start of the simulation.
-
-4.  **Check the Results:** The testbench will monitor and display the contents of the register file and data memory, allowing you to verify that your program executed correctly.
+2.  **Simulation:**
+    * Open **Xilinx Vivado**.
+    * Add files from `/rtl/pipelined` as Design Sources.
+    * Add `sim/testbench_pipeline.v` as Simulation Source.
+    * Run Behavioral Simulation.
 
 ---
 
-## Example Program: Factorial of 5
-
-The included an default `program.asm` program calculates the factorial of 5. It loads the number 5 from data memory, iteratively multiplies it down to 1, and stores the final result (120) back into data memory. This program tests `lw`, `sw`, `addi`, `mul`, `subi`, and `beqz` instructions, demonstrating the processor's full functionality.
-
-## 📂 Repository Structure
+## 📂 Directory Structure
 
 ```text
 /rtl
-  ├── /single_cycle    # The verified baseline core
-  ├── /pipeline        # The 5-stage pipelined core (Active Dev)
-  └── /common          # Shared modules (ALU, Register File)
-/verification
-  ├── assembler.py     # Python assembler for MIPS -> Hex
-  ├── program.asm      # Assembly source code
-  └── test_bench.v     # Verilog simulation environment-
-
-
+  ├── /pipelined           # The 5-Stage Core
+  │   ├── /stages          # Logic for IF, ID, EX, MEM, WB
+  │   ├── /buffers         # Pipeline Registers (IF/ID, etc.)
+  │   ├── Hazard_Unit.v    # Forwarding & Stall Logic
+  │   ├── Control_Unit.v   # Main & ALU Decoders
+  │   └── MIPS_Processor.v # Top-Level Module
+  └── /single_cycle        # Baseline Core
+/sim                       # Testbenches
+/tools                     # Python Assembler
+/tests                     # Assembly source files
+/docs                      # Diagrams & Waveforms
