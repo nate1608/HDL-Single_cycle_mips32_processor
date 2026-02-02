@@ -23,7 +23,7 @@ A modular, hierarchical design split into 5 stages (`IF`, `ID`, `EX`, `MEM`, `WB
     * **Control Hazards:** Implements **Static Branch Prediction (Not-Taken)** with automatic pipeline flushing in the ID and EX stages upon misprediction.
 * **Advanced Control Flow:**
     * **Master PC Arbitration:** A 4-way prioritized Mux in the Fetch stage arbitrates between Branch Targets, Register Jumps, Immediate Jumps, and Sequential PC.
-    * **Function Support:** Full support for `jal` (Call) and `jr` (Return) instructions, enabling C-style function calls and recursion.
+    * **Function Support:** Full support for `jump` (indirect call) and `jr` (Return) instructions, enabling C-style function calls and recursion.
  
   
 ### RTL Schematic
