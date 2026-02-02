@@ -112,6 +112,6 @@ The processor successfully calculates `5! = 120` (`0x78`).
   └── /single_cycle        # Baseline Core
 /sim                       # Testbenches
 /tools                     # Python Assembler
-/tests                     # Assembly source files
+/tests                     # Assembly source files (funtion.asm and factorial.asm)
 /docs                      # Diagrams & Waveforms 
 
