@@ -24,6 +24,12 @@ A modular, hierarchical design split into 5 stages (`IF`, `ID`, `EX`, `MEM`, `WB
 * **Advanced Control Flow:**
     * **Master PC Arbitration:** A 4-way prioritized Mux in the Fetch stage arbitrates between Branch Targets, Register Jumps, Immediate Jumps, and Sequential PC.
     * **Function Support:** Full support for `jal` (Call) and `jr` (Return) instructions, enabling C-style function calls and recursion.
+ 
+  
+### RTL Schematic
+The synthesized design clearly shows the 5-stage separation with inter-stage pipeline registers buffering control and data signals.
+
+![Pipeline Schematic](./docs/pipeline_schematic.png)
 
 ### 2. The Single-Cycle Core (Baseline)
 The initial functional prototype where every instruction completes in one long clock cycle. Used as the "Golden Model" for verifying the pipeline's correctness.
